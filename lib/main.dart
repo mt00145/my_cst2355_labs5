@@ -43,6 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       if(_counter < 99) {
         _counter++;
+        
 
         _myFontSize = _counter;
       } else {
