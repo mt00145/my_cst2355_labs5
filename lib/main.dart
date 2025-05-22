@@ -44,6 +44,8 @@ class _MyHomePageState extends State<MyHomePage> {
       if(_counter < 99) {
         _counter++;
         _myFontSize = _counter;
+      } else {
+        _counter = 100;
       }
     });
   }
@@ -76,3 +78,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
