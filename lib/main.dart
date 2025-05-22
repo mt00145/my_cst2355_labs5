@@ -41,6 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _incrementCounter() {
     setState(() {
+      
       if(_counter < 99) {
         _counter++;
         _myFontSize = _counter;
