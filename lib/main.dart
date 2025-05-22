@@ -10,11 +10,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Lab 2',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Lab 2 Page'),
     );
   }
 }
@@ -29,24 +29,22 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var _counter = 0.0;
-  var _myFontSize = 30.0;
+  late TextEditingController _controllerLogin;
+  late TextEditingController _controllerPassword;
+  var password = "";
 
-  void setNewValue(double value) {
-    setState((){
-      _counter = value;
-      _myFontSize = value;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _controllerLogin = TextEditingController();
+    _controllerPassword = TextEditingController();
   }
 
-  void _incrementCounter() {
-    setState(() {
-      
-      if(_counter < 99) {
-        _counter++;
-        _myFontSize = _counter;
-      }
-    });
+  @override
+  void dispose() {
+    _controllerLogin.dispose();
+    _controllerPassword.dispose();
+    super.dispose();
   }
 
   @override
@@ -59,21 +57,29 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('You have pushed the button this many times:', style: TextStyle(fontSize: _myFontSize),),
-            Text(
-              '$_counter',
-              style: TextStyle(fontSize: _myFontSize),
+            TextField(controller: _controllerLogin,
+                decoration: InputDecoration(
+                    hintText:"Login",
+                    border: OutlineInputBorder()
+                )),//Login Name Text Field
+            TextField(controller: _controllerPassword, obscureText:true,
+                decoration: InputDecoration(
+                    hintText:"Password",
+                    border: OutlineInputBorder(),
+                )),//Password Text Field
+            ElevatedButton(
+              onPressed: () {  password = _controllerPassword.value.text; }, //  <--- Lambda function
+              child:Text("Login"),
             ),
-
-            Slider(value:_counter, max:100.0, onChanged: setNewValue, min:0.0,)
+            Image.asset("images/question-mark.png", width: 200, height:200)
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Incremen  t',
-        child: const Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: _incrementCounter,
+      //   tooltip: 'Increment',
+      //   child: const Icon(Icons.add),
+      // ),
     );
   }
 }
