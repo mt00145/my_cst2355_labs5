@@ -32,6 +32,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late TextEditingController _controllerLogin;
   late TextEditingController _controllerPassword;
   var password = "";
+  var imageSource = "images/question-mark.jpg";
 
   @override
   void initState() {
@@ -45,6 +46,18 @@ class _MyHomePageState extends State<MyHomePage> {
     _controllerLogin.dispose();
     _controllerPassword.dispose();
     super.dispose();
+  }
+
+
+  void changeImage() {
+    setState(() {
+
+      if(password=="QWERTY123"){
+        imageSource = "images/idea.png";
+      } else {
+        imageSource = "images/stop.png";
+      }
+    });
   }
 
   @override
@@ -68,10 +81,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     border: OutlineInputBorder(),
                 )),//Password Text Field
             ElevatedButton(
-              onPressed: () {  password = _controllerPassword.value.text; }, //  <--- Lambda function
-              child:Text("Login"),
+              onPressed: changeImage, //  <--- Lambda function
+              child: Text("Login")
             ),
-            Image.asset("images/question-mark.png", width: 200, height:200)
+            Image.asset(imageSource, width: 200, height:200)
           ],
         ),
       ),
