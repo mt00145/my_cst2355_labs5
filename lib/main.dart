@@ -51,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void changeImage() {
     setState(() {
-
+      password = _controllerPassword.value.text;
       if(password=="QWERTY123"){
         imageSource = "images/idea.png";
       } else {
