@@ -68,23 +68,28 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            TextField(controller: _controllerLogin,
-                decoration: InputDecoration(
-                    hintText:"Login",
-                    border: OutlineInputBorder()
-                )),//Login Name Text Field
-            TextField(controller: _controllerPassword, obscureText:true,
-                decoration: InputDecoration(
-                    hintText:"Password",
-                    border: OutlineInputBorder(),
-                )),//Password Text Field
-            ElevatedButton(
-              onPressed: changeImage, //  <--- Lambda function
-              child: Text("Login")
-            ),
-            Image.asset(imageSource, width: 200, height:200)
+            Text("BROWSE CATEGORIES", style: TextStyle(fontSize: 30.0),),
+            Text("Not sure exactly about what you're looking for? Do a search, or dive into our most popular "
+                "categories.", style: TextStyle(fontSize: 20.0)),
+            Text("BY MEAT", style: TextStyle(fontSize: 30.0),),
+            Row(  children: [
+              Stack(
+                  children: <Widget>[
+                    Image.asset("images/beef.jpg"),
+                    Text("BEEF", style: TextStyle(fontSize: 30.0, backgroundColor:Colors.transparent, color: Colors.white.withOpacity(0.8) ),)
+                  ]),
+              Icon(Icons.star), Text("1 stick [8 TBSP] Unsalted butter")
+            ] ),
+
+            Text("BY COURSE", style: TextStyle(fontSize: 30.0),),
+
+
+            Text("BY DESSERT", style: TextStyle(fontSize: 30.0),),
+
+
+
           ],
         ),
       ),
