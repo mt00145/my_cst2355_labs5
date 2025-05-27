@@ -32,7 +32,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late TextEditingController _controllerLogin;
   late TextEditingController _controllerPassword;
   var password = "";
-  var imageSource = "images/question-mark.jpg";
+  var imageSource = "images/question-mark.png";
 
   @override
   void initState() {
