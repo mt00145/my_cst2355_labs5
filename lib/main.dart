@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,14 +33,58 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late TextEditingController _controllerLogin;
   late TextEditingController _controllerPassword;
+  EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
   var password = "";
   var imageSource = "images/question-mark.png";
+  var yesPressed = false;
+  var noPressed = false;
 
   @override
   void initState() {
     super.initState();
     _controllerLogin = TextEditingController();
     _controllerPassword = TextEditingController();
+    getSharedPreferences();
+  }
+
+  // void loadPreferences() async {
+  //   try {
+  //     String login = await prefs.getString('login');
+  //     String password = await prefs.getString('password');
+  //     setState(() {
+  //       _controllerLogin.text = login;
+  //       _controllerPassword.text = password;
+  //     });
+  //   } catch (e) {
+  //   }
+  // }
+
+  void getSharedPreferences() async { // this function has a thread in it
+    //write this:
+    EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
+    var login = await prefs.getString("Login"); //returns a Future<String>, not string
+    var password = await prefs.getString("Password"); //returns a Future<String>, not string
+
+    if(login != ""){
+      _controllerLogin.text = login;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Loaded saved login')),
+        );
+      });
+    }
+    if(password != ""){
+      _controllerPassword.text = password;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Loaded saved password')),
+        );
+      });
+    }
+
+
+    //Or you can write:, does not need async function
+    // prefs.getString("Login").then( (str) {   if(str != null) {  _controllerLogin.text = str; }   });
   }
 
   @override
@@ -49,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 
-  void changeImage() {
+  void buttonPressed() async {
     setState(() {
       password = _controllerPassword.value.text;
       if(password=="QWERTY123"){
@@ -58,6 +104,33 @@ class _MyHomePageState extends State<MyHomePage> {
         imageSource = "images/stop.png";
       }
     });
+    final result = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('ALERT'),
+        content: const Text('Would you like to save your username and password for the next time?'),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Yes'),
+            onPressed: () {
+              EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
+              prefs.setString("Login", _controllerLogin.value.text);
+              prefs.setString("Password", _controllerPassword.value.text);
+              Navigator.pop(context);
+            },
+          ),
+          TextButton(
+            child: const Text('No'),
+            onPressed: () {
+              EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
+              prefs.setString("Login", "");
+              prefs.setString("Password", "");
+              Navigator.pop(context);
+            },
+          )
+        ],
+      ),
+    );
   }
 
   @override
@@ -81,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     border: OutlineInputBorder(),
                 )),//Password Text Field
             ElevatedButton(
-              onPressed: changeImage, //  <--- Lambda function
+              onPressed: buttonPressed, //  <--- Lambda function
               child: Text("Login")
             ),
             Image.asset(imageSource, width: 200, height:200)
