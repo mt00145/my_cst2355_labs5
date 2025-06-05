@@ -47,18 +47,6 @@ class _MyHomePageState extends State<MyHomePage> {
     getSharedPreferences();
   }
 
-  // void loadPreferences() async {
-  //   try {
-  //     String login = await prefs.getString('login');
-  //     String password = await prefs.getString('password');
-  //     setState(() {
-  //       _controllerLogin.text = login;
-  //       _controllerPassword.text = password;
-  //     });
-  //   } catch (e) {
-  //   }
-  // }
-
   void getSharedPreferences() async { // this function has a thread in it
     //write this:
     EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
@@ -123,8 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: const Text('No'),
             onPressed: () {
               EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
-              prefs.setString("Login", "");
-              prefs.setString("Password", "");
+              prefs.clear();
               Navigator.pop(context);
             },
           )
