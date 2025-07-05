@@ -32,36 +32,9 @@ class _ProfilePageState extends State<ProfilePage> {
     _controllerLastName = TextEditingController();
     _controllerPhone = TextEditingController();
     _controllerEmail = TextEditingController();
-    getSharedPreferences();
+    loadData();
   }
 
-  void getSharedPreferences() async { // this function has a thread in it
-    //write this:
-    // EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
-    // var login = await prefs.getString("Login"); //returns a Future<String>, not string
-    // var password = await prefs.getString("Password"); //returns a Future<String>, not string
-    //
-    // if(login != ""){
-    //   _controllerLogin.text = login;
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       SnackBar(content: Text('Loaded saved login')),
-    //     );
-    //   });
-    // }
-    // if(password != ""){
-    //   _controllerPassword.text = password;
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       SnackBar(content: Text('Loaded saved password')),
-    //     );
-    //   });
-    // }
-
-
-    //Or you can write:, does not need async function
-    // prefs.getString("Login").then( (str) {   if(str != null) {  _controllerLogin.text = str; }   });
-  }
 
   @override
   void dispose() {
@@ -73,17 +46,23 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
 
-  void _loadData() async {
+  void loadData() async {
     await DataRepository.loadProfile();
     setState(() {
       _controllerFirstName.text = DataRepository.firstName;
       _controllerLastName.text = DataRepository.lastName;
       _controllerPhone.text = DataRepository.phone;
       _controllerEmail.text = DataRepository.email;
+
+      _controllerFirstName.addListener(() => saveData());
+      _controllerLastName.addListener(() => saveData());
+      _controllerPhone.addListener(() => saveData());
+      _controllerEmail.addListener(() => saveData());
+
     });
   }
 
-  void _saveData() async {
+  void saveData() async {
     DataRepository.firstName = _controllerFirstName.text;
     DataRepository.lastName = _controllerLastName.text;
     DataRepository.phone = _controllerPhone.text;
@@ -204,7 +183,16 @@ class _ProfilePageState extends State<ProfilePage> {
                 ]
             ),
             ElevatedButton(
-              onPressed: _saveData,
+              onPressed: () {
+                saveData;
+                ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                content: Text("Information Saved"),
+                duration: Duration(seconds: 2),
+                )
+                ,
+                );
+              },
               child: Text("Save"),
             ),
           ],
