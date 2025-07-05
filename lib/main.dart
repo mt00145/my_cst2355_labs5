@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:my_cst2355_labs/ProfilePage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,6 +18,10 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: const MyHomePage(title: 'Lab 4 Page'),
+      initialRoute: '/',
+      routes: {
+        '/ProfilePage': (context) => ProfilePage(),
+      }
     );
   }
 }
@@ -105,6 +110,16 @@ class _MyHomePageState extends State<MyHomePage> {
               prefs.setString("Login", _controllerLogin.value.text);
               prefs.setString("Password", _controllerPassword.value.text);
               Navigator.pop(context);
+              Navigator.pushNamed(  context,"/ProfilePage" );
+              ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Welcome Back ${_controllerLogin.text}"),
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).size.height - 100,
+                    right: 20,
+                    left: 20),
+              ),);
             },
           ),
           TextButton(
@@ -113,11 +128,13 @@ class _MyHomePageState extends State<MyHomePage> {
               EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
               prefs.clear();
               Navigator.pop(context);
-            },
-          )
+
+              },
+          ),
         ],
       ),
     );
+
   }
 
   @override
