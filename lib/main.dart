@@ -29,28 +29,26 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var _counter = 0.0;
-  var _myFontSize = 30.0;
 
-  void setNewValue(double value) {
-    setState((){
-      _counter = value;
-      _myFontSize = value;
-    });
+  List<String> words =  [] ;
+  //or with type inference:
+  var wordsArray = <String>[ ];
+
+  Widget ListPage(){
+    return Column( children:[
+      Expanded(child:
+      ListView.builder( itemCount:words.length,
+          itemBuilder: (context, rowNum) {  return
+            Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children:[
+
+                ]);
+          }
+      )
+      )
+    ]);
   }
 
-  void _incrementCounter() {
-    setState(() {
-      if(_counter < 99) {
-        _counter++;
-        
-
-        _myFontSize = _counter;
-      } else {
-        _counter = 100;
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,20 +60,12 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('You have pushed the button this many times:', style: TextStyle(fontSize: _myFontSize),),
-            Text(
-              '$_counter',
-              style: TextStyle(fontSize: _myFontSize),
-            ),
-
-            Slider(value:_counter, max:100.0, onChanged: setNewValue, min:0.0,)
+            Row( mainAxisAlignment: MainAxisAlignment.spaceBetween, children:[
+              ElevatedButton( child:Text("Add item"), onPressed:() {  }  ),
+              TextField(inputController: _controller )
+            ])
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Incremen  t',
-        child: const Icon(Icons.add),
       ),
     );
   }
