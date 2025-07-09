@@ -19,6 +19,18 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
+
+late TextEditingController _controller;
+EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
+
+@override
+void initState() {
+  super.initState();
+  _controller = inputController();
+}
+
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
