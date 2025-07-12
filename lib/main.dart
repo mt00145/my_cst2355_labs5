@@ -12,10 +12,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -29,20 +29,23 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Map<String, String>> items = [];
+  final List<String> items = [];
+  final List<String> quantities = [];
   final TextEditingController itemController = TextEditingController();
-  final TextEditingController qtyController = TextEditingController();
+  final TextEditingController quantityController = TextEditingController();
 
-  void _addItem() {
-    final name = itemController.text.trim();
-    final qty = qtyController.text.trim();
+  void addItem() {
+    final item = itemController.text.trim();
+    final quantity = quantityController.text.trim();
 
-    if (name.isNotEmpty && qty.isNotEmpty) {
+    if (item.isNotEmpty && quantity.isNotEmpty) {
       setState(() {
-        items.add({'name': name, 'qty': qty});
+        items.add(item);
+        quantities.add(quantity);
         itemController.clear();
-        qtyController.clear();
+        quantityController.clear();
       });
     }
   }
