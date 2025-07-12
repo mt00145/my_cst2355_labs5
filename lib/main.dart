@@ -36,7 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController itemController = TextEditingController();
   final TextEditingController quantityController = TextEditingController();
 
-  void addItem() {
+  void addButton() {
     final item = itemController.text.trim();
     final quantity = quantityController.text.trim();
 
@@ -66,6 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             // Input Row
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Expanded(
                   child: TextField(
@@ -79,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: TextField(
-                    controller: qtyController,
+                    controller: quantityController,
                     decoration: const InputDecoration(
                       hintText: "Type the quantity here",
                       border: OutlineInputBorder(),
@@ -89,12 +90,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 const SizedBox(width: 10),
                 TextButton(
-                  onPressed: _addItem,
+                  onPressed: addButton,
                   style: TextButton.styleFrom(
+                    backgroundColor: const Color(0xFFF8F0FF),
+                    elevation: 1.5, // Shadow depth
+                    shadowColor: Colors.grey,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18.0),
                     ),
-                    backgroundColor: Colors.purple[100],
                   ),
                   child: const Text("Click here"),
                 ),
@@ -114,8 +117,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: GestureDetector(
                       onLongPress: () => _confirmDelete(index),
                       child: Text(
-                        '${index + 1}: ${item['name']}  quantity: ${item['qty']}',
+                        '${index + 1}: ${items[index]}  quantity: ${quantities[index]}',
                         style: const TextStyle(fontSize: 16),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   );
@@ -127,49 +131,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextField(controller: _controllerLogin,
-                decoration: InputDecoration(
-                    hintText:"Login",
-                    border: OutlineInputBorder()
-                )),//Login Name Text Field
-            TextField(controller: _controllerPassword, obscureText:true,
-                decoration: InputDecoration(
-                  hintText:"Password",
-                  border: OutlineInputBorder(),
-                )),//Password Text Field
-            ElevatedButton(
-                onPressed: buttonPressed, //  <--- Lambda function
-                child: Text("Login")
-            ),
-            Image.asset(imageSource, width: 200, height:200)
-          ],
-        ),
-      ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: _incrementCounter,
-      //   tooltip: 'Increment',
-      //   child: const Icon(Icons.add),
-      // ),
-    );
-  }
-
-
-  /////////////////////////////////////////////////////////////////////////////
-
 
 
   void _confirmDelete(int index) {
