@@ -111,7 +111,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   : ListView.builder(
                 itemCount: items.length,
                 itemBuilder: (context, index) {
-                  final item = items[index];
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
                     child: GestureDetector(
