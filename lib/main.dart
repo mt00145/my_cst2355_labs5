@@ -62,7 +62,8 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
-          children: [
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
             // Input Row
             Row(
               children: [
@@ -126,6 +127,50 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            TextField(controller: _controllerLogin,
+                decoration: InputDecoration(
+                    hintText:"Login",
+                    border: OutlineInputBorder()
+                )),//Login Name Text Field
+            TextField(controller: _controllerPassword, obscureText:true,
+                decoration: InputDecoration(
+                  hintText:"Password",
+                  border: OutlineInputBorder(),
+                )),//Password Text Field
+            ElevatedButton(
+                onPressed: buttonPressed, //  <--- Lambda function
+                child: Text("Login")
+            ),
+            Image.asset(imageSource, width: 200, height:200)
+          ],
+        ),
+      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: _incrementCounter,
+      //   tooltip: 'Increment',
+      //   child: const Icon(Icons.add),
+      // ),
+    );
+  }
+
+
+  /////////////////////////////////////////////////////////////////////////////
+
+
 
   void _confirmDelete(int index) {
     showDialog(
