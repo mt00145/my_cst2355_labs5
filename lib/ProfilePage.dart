@@ -19,11 +19,8 @@ class _ProfilePageState extends State<ProfilePage> {
   late TextEditingController _controllerLastName;
   late TextEditingController _controllerPhone;
   late TextEditingController _controllerEmail;
+  late TextEditingController _controllerOther;
   EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
-  var password = "";
-  var imageSource = "images/question-mark.png";
-  var yesPressed = false;
-  var noPressed = false;
 
   @override
   void initState() {
@@ -32,6 +29,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _controllerLastName = TextEditingController();
     _controllerPhone = TextEditingController();
     _controllerEmail = TextEditingController();
+    _controllerOther = TextEditingController();
     loadData();
   }
 
@@ -42,6 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _controllerLastName.dispose();
     _controllerPhone.dispose();
     _controllerEmail.dispose();
+    _controllerOther.dispose();
     super.dispose();
   }
 
@@ -53,11 +52,13 @@ class _ProfilePageState extends State<ProfilePage> {
       _controllerLastName.text = DataRepository.lastName;
       _controllerPhone.text = DataRepository.phone;
       _controllerEmail.text = DataRepository.email;
+      _controllerOther.text = DataRepository.other;
 
       _controllerFirstName.addListener(() => saveData());
       _controllerLastName.addListener(() => saveData());
       _controllerPhone.addListener(() => saveData());
       _controllerEmail.addListener(() => saveData());
+      _controllerOther.addListener(() => saveData());
 
     });
   }
@@ -67,6 +68,7 @@ class _ProfilePageState extends State<ProfilePage> {
     DataRepository.lastName = _controllerLastName.text;
     DataRepository.phone = _controllerPhone.text;
     DataRepository.email = _controllerEmail.text;
+    DataRepository.other = _controllerOther.text;
     await DataRepository.saveProfile();
   }
 
@@ -182,9 +184,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ]
             ),
+            TextField(controller: _controllerOther,
+                decoration: InputDecoration(
+                    hintText:"Other",
+                    border: OutlineInputBorder()
+                )),
             ElevatedButton(
               onPressed: () {
-                saveData;
+                saveData();
                 ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                 content: Text("Information Saved"),

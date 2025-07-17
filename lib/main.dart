@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_cst2355_labs/ProfilePage.dart';
+import 'package:my_cst2355_labs/DataRepository.dart';
 
 void main() {
   runApp(const MyApp());
@@ -38,6 +39,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late TextEditingController _controllerLogin;
   late TextEditingController _controllerPassword;
+  late TextEditingController _controllerOther;
   EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
   var password = "";
   var imageSource = "images/question-mark.png";
@@ -49,6 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _controllerLogin = TextEditingController();
     _controllerPassword = TextEditingController();
+    _controllerOther = TextEditingController();
     getSharedPreferences();
   }
 
@@ -57,6 +60,8 @@ class _MyHomePageState extends State<MyHomePage> {
     EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
     var login = await prefs.getString("Login"); //returns a Future<String>, not string
     var password = await prefs.getString("Password"); //returns a Future<String>, not string
+    var other = await prefs.getString("other");
+    _controllerOther.text = DataRepository.other;
 
     if(login != ""){
       _controllerLogin.text = login;
@@ -74,6 +79,15 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       });
     }
+    if(other != ""){
+      _controllerOther.text = other;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Loaded saved other')),
+        );
+      });
+    }
+
 
 
     //Or you can write:, does not need async function
@@ -84,6 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void dispose() {
     _controllerLogin.dispose();
     _controllerPassword.dispose();
+    _controllerOther.dispose();
     super.dispose();
   }
 
@@ -109,6 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
               EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
               prefs.setString("Login", _controllerLogin.value.text);
               prefs.setString("Password", _controllerPassword.value.text);
+              prefs.setString("other", _controllerOther.value.text);
               Navigator.pop(context);
               Navigator.pushNamed(  context,"/ProfilePage" );
               ScaffoldMessenger.of(context).showSnackBar(
@@ -157,6 +173,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     hintText:"Password",
                     border: OutlineInputBorder(),
                 )),//Password Text Field
+            TextField(controller: _controllerOther,
+                decoration: InputDecoration(
+                  hintText:"Other",
+                  border: OutlineInputBorder(),
+                )),
             ElevatedButton(
               onPressed: buttonPressed, //  <--- Lambda function
               child: Text("Login")
