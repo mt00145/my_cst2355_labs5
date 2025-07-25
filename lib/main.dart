@@ -32,19 +32,24 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final List<String> items = [];
   final List<String> quantities = [];
+  final List<String> prices = [];
   final TextEditingController itemController = TextEditingController();
   final TextEditingController quantityController = TextEditingController();
+  final TextEditingController priceController = TextEditingController();
 
   void addButton() {
     final item = itemController.text.trim();
     final quantity = quantityController.text.trim();
+    final price = priceController.text.trim();
 
-    if (item.isNotEmpty && quantity.isNotEmpty) {
+    if (item.isNotEmpty && quantity.isNotEmpty && price.isNotEmpty) {
       setState(() {
         items.add(item);
         quantities.add(quantity);
+        prices.add(price);
         itemController.clear();
         quantityController.clear();
+        priceController.clear();
       });
     }
   }
@@ -88,6 +93,17 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 const SizedBox(width: 10),
+                Expanded(
+                  child: TextField(
+                    controller: priceController,
+                    decoration: const InputDecoration(
+                      hintText: "Type the price here",
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+                const SizedBox(width: 10),
                 TextButton(
                   onPressed: addButton,
                   style: TextButton.styleFrom(
@@ -115,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: GestureDetector(
                       onLongPress: () => _confirmDelete(index),
                       child: Text(
-                        '${index + 1}: ${items[index]}  quantity: ${quantities[index]}',
+                        '${index + 1}: ${items[index]}  quantity: ${quantities[index]} price: \$ ${prices[index]}',
                         style: const TextStyle(fontSize: 16),
                         textAlign: TextAlign.center,
                       ),
@@ -146,6 +162,8 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () {
               setState(() {
                 items.removeAt(index);
+                quantities.removeAt(index);
+                prices.removeAt(index);
               });
               Navigator.of(context).pop();
             },
