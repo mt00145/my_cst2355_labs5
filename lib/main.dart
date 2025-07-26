@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'database.dart';
+import 'items.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,26 +32,53 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<String> items = [];
+  List<Items> items = [];
+  late var ItemsDao;
+  // final List<String> items = [];
   final List<String> quantities = [];
-  final List<String> prices = [];
   final TextEditingController itemController = TextEditingController();
   final TextEditingController quantityController = TextEditingController();
-  final TextEditingController priceController = TextEditingController();
 
-  void addButton() {
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize controller
+    initDatabase();
+  }
+
+  @override
+  void dispose() {
+    itemController.dispose();
+    quantityController.dispose();// Dispose controller
+    super.dispose();
+  }
+
+  void initDatabase() async {
+    final database = await $FloorAppDatabase.databaseBuilder('items_database.db').build();
+    ItemsDao = database.itemsDao;
+
+    ItemsDao.findAllItems().then(
+          (list) {
+        setState(() {
+          items = list;
+        });
+      },
+    );
+  }
+
+
+  void addButton() async {
     final item = itemController.text.trim();
     final quantity = quantityController.text.trim();
-    final price = priceController.text.trim();
 
-    if (item.isNotEmpty && quantity.isNotEmpty && price.isNotEmpty) {
+    if (itemController.text.isNotEmpty && quantityController.text.isNotEmpty) {
+      final newItem = Items(itemController.text, quantityController.text);
+      await ItemsDao.insertItem(newItem);
       setState(() {
-        items.add(item);
-        quantities.add(quantity);
-        prices.add(price);
+        items.add(newItem);
         itemController.clear();
         quantityController.clear();
-        priceController.clear();
       });
     }
   }
@@ -93,17 +122,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: priceController,
-                    decoration: const InputDecoration(
-                      hintText: "Type the price here",
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-                const SizedBox(width: 10),
                 TextButton(
                   onPressed: addButton,
                   style: TextButton.styleFrom(
@@ -131,7 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: GestureDetector(
                       onLongPress: () => _confirmDelete(index),
                       child: Text(
-                        '${index + 1}: ${items[index]}  quantity: ${quantities[index]} price: \$ ${prices[index]}',
+                        '${index + 1}: ${items[index]}  quantity: ${quantities[index]}',
                         style: const TextStyle(fontSize: 16),
                         textAlign: TextAlign.center,
                       ),
@@ -159,12 +177,10 @@ class _MyHomePageState extends State<MyHomePage> {
             child: const Text('No'),
           ),
           TextButton(
-            onPressed: () {
-              setState(() {
-                items.removeAt(index);
-                quantities.removeAt(index);
-                prices.removeAt(index);
-              });
+            onPressed: () async {
+              await ItemsDao.deleteItem(items[index]); // delete from DB
+              items = await ItemsDao.findAllItems();  // reload items
+              setState(() {}); // refresh UI
               Navigator.of(context).pop();
             },
             child: const Text('Yes'),
