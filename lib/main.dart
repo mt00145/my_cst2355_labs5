@@ -1,128 +1,288 @@
 import 'package:flutter/material.dart';
+import 'database.dart';
+import 'items.dart';
+import 'items_dao.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Responsive Items App',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: ItemsPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
+class ItemsPage extends StatefulWidget {
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _ItemsPageState createState() => _ItemsPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  final List<String> items = [];
-  final List<String> quantities = [];
-  final TextEditingController itemController = TextEditingController();
-  final TextEditingController quantityController = TextEditingController();
+class _ItemsPageState extends State<ItemsPage> {
+  late AppDatabase database;
+  late ItemsDao itemsDao;
+  List<Items> items = [];
+  Items? selectedItem;
+  bool isDatabaseReady = false;
 
-  void addButton() {
-    final item = itemController.text.trim();
-    final quantity = quantityController.text.trim();
+  @override
+  void initState() {
+    super.initState();
+    initDatabase();
+  }
 
-    if (item.isNotEmpty && quantity.isNotEmpty) {
+  Future<void> initDatabase() async {
+    database = await $FloorAppDatabase.databaseBuilder('database.db').build();
+    itemsDao = database.itemsDao;
+    setState(() {
+      isDatabaseReady = true;
+    });
+    loadItems();
+  }
+
+  Future<void> loadItems() async {
+    if (isDatabaseReady) {
+      final allItems = await itemsDao.findAllItems();
       setState(() {
-        items.add(item);
-        quantities.add(quantity);
-        itemController.clear();
-        quantityController.clear();
+        items = allItems;
       });
     }
+  }
+
+  Future<void> addItem(String itemName, String quantity) async {
+    if (isDatabaseReady) {
+      final newItem = Items(itemName, quantity);
+      await itemsDao.insertItem(newItem);
+      loadItems();
+    }
+  }
+
+  Future<void> deleteSelectedItem() async {
+    if (selectedItem != null && selectedItem!.id != null) {
+      await itemsDao.deleteItemById(selectedItem!.id!);
+      setState(() {
+        selectedItem = null;
+      });
+      loadItems();
+    }
+  }
+
+  void selectItem(Items item) {
+    setState(() {
+      selectedItem = item;
+    });
+  }
+
+  void clearSelection() {
+    setState(() {
+      selectedItem = null;
+    });
+  }
+
+  Widget reactiveLayout() {
+    var size = MediaQuery.of(context).size;
+    var height = size.height;
+    var width = size.width;
+
+    if ((width > height) && (width > 720)) {
+      // Tablet/Desktop layout - Master-Detail side by side
+      return Row(
+        children: [
+          Expanded(
+            flex: 1,
+            child: ListPage(),
+          ),
+          Expanded(
+            flex: 1,
+            child: DetailsPage(),
+          ),
+        ],
+      );
+    } else {
+      // Phone layout - Full screen switching
+      if (selectedItem == null) {
+        return ListPage();
+      } else {
+        return DetailsPage();
+      }
+    }
+  }
+
+  Widget ListPage() {
+    return Column(
+      children: [
+        // Add item form
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: AddItemForm(onAddItem: addItem),
+        ),
+        // Items list
+        Expanded(
+          child: items.isEmpty
+              ? Center(child: Text('No items found. Add some items!'))
+              : ListView.builder(
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return Card(
+                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: ListTile(
+                  title: Text(item.item),
+                  subtitle: Text('Quantity: ${item.quantity}'),
+                  trailing: Text('ID: ${item.id}'),
+                  onTap: () => selectItem(item), // Changed from long-press to tap
+                  selected: selectedItem?.id == item.id,
+                  selectedTileColor: Colors.blue.withOpacity(0.1),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget DetailsPage() {
+    if (selectedItem == null) {
+      return Center(
+        child: Text(
+          'Select an item to view details',
+          style: TextStyle(fontSize: 18, color: Colors.grey),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Item Details',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Item Name: ${selectedItem!.item}',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Quantity: ${selectedItem!.quantity}',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Database ID: ${selectedItem!.id}',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: 20),
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: deleteSelectedItem,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple,
+                  foregroundColor: Colors.white,
+                ),
+                child: Text('Delete'),
+              ),
+              SizedBox(width: 16),
+              ElevatedButton(
+                onPressed: clearSelection,
+                child: Text('Close'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F0FF),
       appBar: AppBar(
-        backgroundColor: Colors.purple[200],
-        centerTitle: true,
-        title: Text(widget.title),
+        title: Text('Items Manager'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
+      body: isDatabaseReady ? reactiveLayout() : Center(child: CircularProgressIndicator()),
+    );
+  }
+}
+
+class AddItemForm extends StatefulWidget {
+  final Function(String, String) onAddItem;
+
+  AddItemForm({required this.onAddItem});
+
+  @override
+  _AddItemFormState createState() => _AddItemFormState();
+}
+
+class _AddItemFormState extends State<AddItemForm> {
+  final _itemController = TextEditingController();
+  final _quantityController = TextEditingController();
+
+  void _addItem() {
+    if (_itemController.text.isNotEmpty && _quantityController.text.isNotEmpty) {
+      widget.onAddItem(_itemController.text, _quantityController.text);
+      _itemController.clear();
+      _quantityController.clear();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            // Input Row
+          children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Expanded(
                   child: TextField(
-                    controller: itemController,
-                    decoration: const InputDecoration(
-                      hintText: "Type the item here",
+                    controller: _itemController,
+                    decoration: InputDecoration(
+                      labelText: 'Item Name',
                       border: OutlineInputBorder(),
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 16),
                 Expanded(
                   child: TextField(
-                    controller: quantityController,
-                    decoration: const InputDecoration(
-                      hintText: "Type the quantity here",
+                    controller: _quantityController,
+                    decoration: InputDecoration(
+                      labelText: 'Quantity',
                       border: OutlineInputBorder(),
                     ),
-                    keyboardType: TextInputType.number,
                   ),
-                ),
-                const SizedBox(width: 10),
-                TextButton(
-                  onPressed: addButton,
-                  style: TextButton.styleFrom(
-                    backgroundColor: const Color(0xFFF8F0FF),
-                    elevation: 1.5, // Shadow depth
-                    shadowColor: Colors.grey,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18.0),
-                    ),
-                  ),
-                  child: const Text("Click here"),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            // Item List
-            Expanded(
-              child: items.isEmpty
-                  ? const Text("There are no items in the list.")
-                  : ListView.builder(
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: GestureDetector(
-                      onLongPress: () => _confirmDelete(index),
-                      child: Text(
-                        '${index + 1}: ${items[index]}  quantity: ${quantities[index]}',
-                        style: const TextStyle(fontSize: 16),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  );
-                },
-              ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _addItem,
+              child: Text('Add Item'),
             ),
           ],
         ),
@@ -130,29 +290,10 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-
-  void _confirmDelete(int index) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Item'),
-        content: const Text('Are you sure you want to delete this item?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('No'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                items.removeAt(index);
-              });
-              Navigator.of(context).pop();
-            },
-            child: const Text('Yes'),
-          ),
-        ],
-      ),
-    );
+  @override
+  void dispose() {
+    _itemController.dispose();
+    _quantityController.dispose();
+    super.dispose();
   }
 }
